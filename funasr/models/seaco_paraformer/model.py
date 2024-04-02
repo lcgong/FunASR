@@ -39,6 +39,8 @@ else:
     def autocast(enabled=True):
         yield
 
+_log = logging.getLogger("ModifiedFunASR")
+_howwords_log = logging.getLogger("funasr.hotwords")
 
 @tables.register("model_classes", "SeacoParaformer")
 class SeacoParaformer(BiCifParaformer, Paraformer):
@@ -214,9 +216,11 @@ class SeacoParaformer(BiCifParaformer, Paraformer):
                                sematic_embeds, 
                                ys_pad_lens, 
                                hw_list,
-                               nfilter=50,
+                               nfilter=1000,
                                seaco_weight=1.0):
         # decoder forward
+
+        _log.warning("修正_seaco_decode_with_ASF的nfilter=%d", nfilter)
 
         decoder_out, decoder_hidden, _ = self.decoder(encoder_out, encoder_out_lens, sematic_embeds, ys_pad_lens, return_hidden=True, return_both=True)
 
@@ -527,7 +531,7 @@ class SeacoParaformer(BiCifParaformer, Paraformer):
                 hotword_list.append(tokenizer.tokens2ids(hw_list))
             hotword_list.append([self.sos])
             hotword_str_list.append('<s>')
-            logging.info("Hotword list: {}.".format(hotword_str_list))
+            _howwords_log.info("Hotword list: {}.".format(hotword_str_list))
         else:
             hotword_list = None
         return hotword_list
