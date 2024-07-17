@@ -242,7 +242,7 @@ class SeacoParaformer(BiCifParaformer, Paraformer):
         nfilter=1000,
         seaco_weight=1.0,
     ):
-        _howwords_log.info("修正nfilter=1000")
+        # _howwords_log.info("修正nfilter=1000")
         # decoder forward
 
         decoder_out, decoder_hidden, _ = self.decoder(
@@ -603,7 +603,7 @@ class SeacoParaformer(BiCifParaformer, Paraformer):
             )
         # for text str input
         elif not hotword_list_or_file.endswith(".txt"):
-            logging.info("Attempting to parse hotwords as str...")
+            _howwords_log.debug("Attempting to parse hotwords as str...")
             hotword_list = []
             hotword_str_list = []
             for hw in hotword_list_or_file.strip().split():
@@ -614,7 +614,7 @@ class SeacoParaformer(BiCifParaformer, Paraformer):
                 hotword_list.append(tokenizer.tokens2ids(hw_list))
             hotword_list.append([self.sos])
             hotword_str_list.append("<s>")
-            _howwords_log.info("Hotword list: {}.".format(hotword_str_list))
+            # _howwords_log.info("Hotword list: {}.".format(hotword_str_list))
         else:
             hotword_list = None
         return hotword_list
