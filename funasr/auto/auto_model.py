@@ -337,7 +337,7 @@ class AutoModel:
         end_vad = time.time()
 
         #  FIX(gcf): concat the vad clips for sense vocie model for better aed
-        if kwargs.get("merge_vad", False):
+        if cfg.get("merge_vad", False):
             for i in range(len(res)):
                 res[i]["value"] = merge_vad(
                     res[i]["value"], kwargs.get("merge_length_s", 15) * 1000
@@ -511,8 +511,8 @@ class AutoModel:
                 sv_output = postprocess(all_segments, None, labels, spk_embedding.cpu())
                 if self.spk_mode == "vad_segment":  # recover sentence_list
                     sentence_list = []
-                    for res, vadsegment in zip(restored_data, vadsegments):
-                        if "timestamp" not in res:
+                    for rest, vadsegment in zip(restored_data, vadsegments):
+                        if "timestamp" not in rest:
                             logging.error(
                                 "Only 'iic/speech_paraformer-large-vad-punc_asr_nat-zh-cn-16k-common-vocab8404-pytorch' \
                                            and 'iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch'\
@@ -522,8 +522,8 @@ class AutoModel:
                             {
                                 "start": vadsegment[0],
                                 "end": vadsegment[1],
-                                "sentence": res["text"],
-                                "timestamp": res["timestamp"],
+                                "sentence": rest["text"],
+                                "timestamp": rest["timestamp"],
                             }
                         )
                 elif self.spk_mode == "punc_segment":

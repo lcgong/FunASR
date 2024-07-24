@@ -644,6 +644,7 @@ class SenseVoiceSmall(nn.Module):
         self.embed = torch.nn.Embedding(
             7 + len(self.lid_dict) + len(self.textnorm_dict), input_size
         )
+        self.emo_dict = {"unk": 25009, "happy": 25001, "sad": 25002, "angry": 25003, "neutral": 25004}
 
         self.criterion_att = LabelSmoothingLoss(
             size=self.vocab_size,
@@ -697,10 +698,11 @@ class SenseVoiceSmall(nn.Module):
 
         loss_rich, acc_rich = self._calc_rich_ce_loss(encoder_out[:, :4, :], text[:, :4])
 
-        loss = loss_ctc
+        loss = loss_ctc + loss_rich
         # Collect total loss stats
-        stats["loss"] = torch.clone(loss.detach()) if loss_ctc is not None else None
+        stats["loss_ctc"] = torch.clone(loss_ctc.detach()) if loss_ctc is not None else None
         stats["loss_rich"] = torch.clone(loss_rich.detach()) if loss_rich is not None else None
+        stats["loss"] = torch.clone(loss.detach()) if loss is not None else None
         stats["acc_rich"] = acc_rich
 
         # force_gatherable: to-device and to-tensor if scalar for DataParallel
@@ -870,7 +872,9 @@ class SenseVoiceSmall(nn.Module):
 
         # c. Passed the encoder result and the beam search
         ctc_logits = self.ctc.log_softmax(encoder_out)
-
+        if kwargs.get("ban_emo_unk", False):
+            ctc_logits[:, :, self.emo_dict["unk"]] = -float("inf")
+            
         results = []
         b, n, d = encoder_out.size()
         if isinstance(key[0], (list, tuple)):
