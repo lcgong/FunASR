@@ -614,7 +614,7 @@ class SeacoParaformer(BiCifParaformer, Paraformer):
                 hotword_list.append(tokenizer.tokens2ids(hw_list))
             hotword_list.append([self.sos])
             hotword_str_list.append("<s>")
-            # _howwords_log.info("Hotword list: {}.".format(hotword_str_list))
+            _howwords_log.info("hotword list: %d words", len(hotword_str_list))
         else:
             hotword_list = None
         return hotword_list
