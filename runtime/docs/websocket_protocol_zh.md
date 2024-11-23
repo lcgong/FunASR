@@ -21,6 +21,8 @@ message为（需要用json序列化）：
 `audio_fs`：当输入音频为pcm数据时，需要加上音频采样率参数
 `hotwords`：如果使用热词，需要向服务端发送热词数据（字符串），格式为 "{"阿里巴巴":20,"通义实验室":30}"
 `itn`: 设置是否使用itn，默认True
+`svs_lang`: 设置SenseVoiceSmall模型语种，默认为“auto”
+`svs_itn`: 设置SenseVoiceSmall模型是否开启标点、ITN，默认为True
 ```
 注：热词权重仅在fst热词服务下生效。
 
@@ -44,7 +46,7 @@ message为（采用json序列化）
 `mode`：`offline`，表示推理模式为离线文件转写
 `wav_name`：表示需要推理音频文件名
 `text`：表示语音识别输出文本
-`is_final`：表示识别结束
+`is_final`：表示识别结束，在 offline 模式下这个字段永远为 False，服务端 websocket 只会返回一次识别结果
 `timestamp`：如果AM为时间戳模型，会返回此字段，表示时间戳，格式为 "[[100,200], [200,500]]"(ms)
 `stamp_sents`：如果AM为时间戳模型，会返回此字段，表示句子级别时间戳，格式为 [{"text_seg":"正 是 因 为","punc":",","start":430,"end":1130,"ts_list":[[430,670],[670,810],[810,1030],[1030,1130]]}]
 ```
@@ -73,6 +75,8 @@ message为（需要用json序列化）：
 `audio_fs`：当输入音频为pcm数据是，需要加上音频采样率参数
 `hotwords`：如果使用热词，需要向服务端发送热词数据（字符串），格式为 "{"阿里巴巴":20,"通义实验室":30}"
 `itn`: 设置是否使用itn，默认True
+`svs_lang`: 设置SenseVoiceSmall模型语种，默认为“auto”
+`svs_itn`: 设置SenseVoiceSmall模型是否开启标点、ITN，默认为True
 ```
 注：热词权重仅在fst热词服务下生效。
 
