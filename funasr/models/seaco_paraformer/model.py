@@ -40,7 +40,7 @@ else:
         yield
 
 _log = logging.getLogger("ModifiedFunASR")
-_howwords_log = logging.getLogger("funasr.hotwords")
+_hotwords_log = logging.getLogger("hotwords")
 
 @tables.register("model_classes", "SeacoParaformer")
 class SeacoParaformer(BiCifParaformer, Paraformer):
@@ -603,7 +603,7 @@ class SeacoParaformer(BiCifParaformer, Paraformer):
             )
         # for text str input
         elif not hotword_list_or_file.endswith(".txt"):
-            _howwords_log.debug("Attempting to parse hotwords as str...")
+            # _hotwords_log.debug("Attempting to parse hotwords as str...")
             hotword_list = []
             hotword_str_list = []
             for hw in hotword_list_or_file.strip().split():
@@ -614,7 +614,7 @@ class SeacoParaformer(BiCifParaformer, Paraformer):
                 hotword_list.append(tokenizer.tokens2ids(hw_list))
             hotword_list.append([self.sos])
             hotword_str_list.append("<s>")
-            _howwords_log.info("hotword list: %d words", len(hotword_str_list))
+            _hotwords_log.debug("hotword list: %d words", len(hotword_str_list))
         else:
             hotword_list = None
         return hotword_list
