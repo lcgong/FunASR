@@ -134,7 +134,7 @@ def main(**kwargs):
         **kwargs.get("train_conf"),
     )
 
-    model = trainer.warp_model(model)
+    model = trainer.warp_model(model, **kwargs)
 
     kwargs["device"] = int(os.environ.get("LOCAL_RANK", 0))
     trainer.device = int(os.environ.get("LOCAL_RANK", 0))
@@ -184,7 +184,10 @@ def main(**kwargs):
             )
             trainer.start_step = 0
 
-            torch.cuda.empty_cache()
+            device = next(model.parameters()).device
+            if device.type == "cuda":
+                with torch.cuda.device(device):
+                    torch.cuda.empty_cache()
 
             time_escaped = (time.perf_counter() - time_slice_i) / 3600.0
             logging.info(

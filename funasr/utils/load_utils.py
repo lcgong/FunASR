@@ -10,7 +10,6 @@ import torchaudio
 import time
 import logging
 from torch.nn.utils.rnn import pad_sequence
-from pydub import AudioSegment
 
 try:
     from funasr.download.file import download_from_url
@@ -19,6 +18,11 @@ except:
 import pdb
 import subprocess
 from subprocess import CalledProcessError, run
+
+try:
+    from pydub import AudioSegment
+except:
+    pass
 
 
 def is_ffmpeg_installed():
@@ -82,8 +86,10 @@ def load_audio_text_image_video(
     ):  # download url to local file
         data_or_path_or_list = download_from_url(data_or_path_or_list)
 
-    if isinstance(data_or_path_or_list, str) and os.path.exists(data_or_path_or_list):  # local file
+    if (isinstance(data_or_path_or_list, str) and os.path.exists(data_or_path_or_list)) or hasattr(data_or_path_or_list, 'read'):  # local file or bytes io
         if data_type is None or data_type == "sound":
+            if hasattr(data_or_path_or_list, "read") and hasattr(data_or_path_or_list, "seek"):
+                data_or_path_or_list.seek(0)
             # if use_ffmpeg:
             #     data_or_path_or_list = _load_audio_ffmpeg(data_or_path_or_list, sr=fs)
             #     data_or_path_or_list = torch.from_numpy(data_or_path_or_list).squeeze()  # [n_samples,]
@@ -138,7 +144,10 @@ def load_audio_text_image_video(
 
 
 def load_bytes(input):
-    # input = validate_frame_rate(input)
+    try:
+        input = validate_frame_rate(input)
+    except:
+        pass
     middle_data = np.frombuffer(input, dtype=np.int16)
     middle_data = np.asarray(middle_data)
     if middle_data.dtype.kind not in "iu":
@@ -163,7 +172,12 @@ def validate_frame_rate(
     byte_data = BytesIO(input)
 
     # 使用 pydub 加载音频
-    audio = AudioSegment.from_file(byte_data)
+    try:
+        audio = AudioSegment.from_file(byte_data)
+    except:
+        raise RuntimeError(
+            "You are decoding the pcm data, please install pydub first. via `pip install pydub`."
+        )
 
     # 确保采样率为 16000 Hz
     if audio.frame_rate != fs:

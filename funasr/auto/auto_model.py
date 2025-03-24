@@ -147,7 +147,9 @@ class AutoModel:
         # if spk_model is not None, build spk model else None
         spk_model = kwargs.get("spk_model", None)
         spk_kwargs = {} if kwargs.get("spk_kwargs", {}) is None else kwargs.get("spk_kwargs", {})
-        cb_kwargs = {} if spk_kwargs.get("cb_kwargs", {}) is None else spk_kwargs.get("cb_kwargs", {})
+        cb_kwargs = (
+            {} if spk_kwargs.get("cb_kwargs", {}) is None else spk_kwargs.get("cb_kwargs", {})
+        )
         if spk_model is not None:
             logging.info("Building SPK model.")
             spk_kwargs["model"] = spk_model
@@ -366,7 +368,11 @@ class AutoModel:
         if pbar:
             # pbar.update(1)
             pbar.set_description(f"rtf_avg: {time_escape_total/time_speech_total:0.3f}")
-        torch.cuda.empty_cache()
+
+        device = next(model.parameters()).device
+        if device.type == "cuda":
+            with torch.cuda.device(device):
+                torch.cuda.empty_cache()
         return asr_result_list
 
     def inference_with_vad(self, input, input_len=None, **cfg):
